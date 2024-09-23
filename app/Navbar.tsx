@@ -1,41 +1,51 @@
 "use client";
 
-import { Button, Flex } from "@radix-ui/themes";
+import { Avatar, Button, DropdownMenu, Flex } from "@radix-ui/themes";
 import classNames from "classnames";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { FaBug } from "react-icons/fa";
 
+type userData = {
+  image: string;
+  name: string;
+};
+
 const Navbar = () => {
   const pathName = usePathname();
-  const [user, setUser] = useState(null);  // State to store user session
+  const [user, setUser] = useState<userData | null>(null); // State to store user session
 
   // Fetch session when the component mounts
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const res = await fetch("/api/session"); // Call your API to get session
+        const res = await fetch("/api/session");
         if (res.ok) {
           const data = await res.json();
-          setUser(data?.user);  // Assuming the session data includes a user object
+          setUser(data?.user);
         } else {
-          setUser(null);  // No session found or not authenticated
+          setUser(null);
         }
       } catch (error) {
         console.error("Error fetching session:", error);
         setUser(null);
       }
     };
-
+  
     fetchSession();
   }, []);
 
+  useEffect(() => {
+    console.log(user)
+  }, [user])
+
   // Logout handler
-  const handleLogout = async () => {
-    await fetch("/api/auth/signout");  // Call the API to sign the user out
-    setUser(null);  // Clear the user session locally
-  };
+  // const handleLogout = async () => {
+  //   await fetch("/api/auth/signout"); // Call the API to sign the user out
+  //   setUser(null); // Clear the user session locally
+  // };
 
   const navLinks = [
     { label: "Dashboard", href: "/" },
@@ -65,22 +75,23 @@ const Navbar = () => {
       </Flex>
 
       {/* Render Login or Logout button */}
-      // TODO: Add the conformation modal for logout and spinner animations
       <div>
         {user ? (
-          <Button
-            onClick={handleLogout}
-            variant="soft"
-            color="red"
-          >
-            Logout
-          </Button>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              {/* <Avatar src={user.image} fallback="?" radius="full" className="cursor-pointer" referrerPolicy="no-referrer"/> */}
+              <Image src={user.image} alt="?" height={40} width={40} className="rounded-full hover:cursor-pointer" />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Label className="flex mb-3">
+                Hey<span className="font-bold text-teal-700 p-1 m-1 hover:text-teal-600 rounded-md">{user.name}</span>
+              </DropdownMenu.Label>
+              <Link href="/api/auth/signout"><DropdownMenu.Item className="hover:cursor-pointer">Logout</DropdownMenu.Item></Link>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         ) : (
-          
           <Link href="/api/auth/signin">
-            <Button color="teal">
-              Login
-            </Button>
+            <Button color="teal">Login</Button>
           </Link>
         )}
       </div>
