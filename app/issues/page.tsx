@@ -4,13 +4,15 @@ import React from 'react'
 import IssueStatusBadge from '../components/IssueStatusBadge'
 import IssueControls from './IssueControls'
 import Link from '../components/Link'
+import {auth} from '@/auth'
 
 const page = async () => {
+  const session = await auth()
   const issues = await prisma.issue.findMany()
 
   return (
     <div>
-      <IssueControls />
+      {session && <IssueControls />}
       <Table.Root variant='surface'>
         <Table.Header>
           <Table.Row>

@@ -1,26 +1,44 @@
 import prisma from "@/prisma/client";
-import { Box, Flex, Grid } from "@radix-ui/themes";
+import { Box, DropdownMenu, Flex, Grid, Select } from "@radix-ui/themes";
 import { notFound } from "next/navigation";
 import EditButton from "./EditButton";
 import IssueContents from "./IssueContents";
 import DeleteButton from "./DeleteButton";
+import { auth } from "@/auth"; // Fetch session in the component
 
 const page = async ({ params }: { params: { id: string } }) => {
+  const session = await auth(); // Fetch session to check user authentication
   const issueDetails = await prisma.issue.findUnique({
     where: {
       id: parseInt(params.id),
     },
   });
-  if (!issueDetails) notFound()
+
+  if (!issueDetails) notFound();
+
   return (
-    <Grid columns={{initial: "1", md: "2"}} gap="8">
+    <Grid columns={{ initial: "1", md: "2" }} gap="8">
       <Box>
         <IssueContents issueDetails={issueDetails} />
       </Box>
-      <Flex direction="column" align="start" gap="3">
-        <EditButton id={parseInt(params.id)} />
-        <DeleteButton id={parseInt(params.id)} />
-      </Flex>
+
+      {/* Render Edit/Delete buttons only if the user is authenticated */}
+      {session && (
+        <Flex direction="column" align="start" gap="3">
+          <Select.Root>
+            <Select.Trigger placeholder="Assign to" />
+            <Select.Content>
+              <Select.Group>
+                <Select.Label>Fruits</Select.Label>
+                <Select.Item value="orange">Orange</Select.Item>
+              </Select.Group>
+            </Select.Content>
+          </Select.Root>
+
+          <EditButton id={parseInt(params.id)} />
+          <DeleteButton id={parseInt(params.id)} />
+        </Flex>
+      )}
     </Grid>
   );
 };
