@@ -5,6 +5,7 @@ import EditButton from "./EditButton";
 import IssueContents from "./IssueContents";
 import DeleteButton from "./DeleteButton";
 import { auth } from "@/auth"; // Fetch session in the component
+import AssigneeDropdown from "../_components/AssigneeDropdown";
 
 const page = async ({ params }: { params: { id: string } }) => {
   const session = await auth(); // Fetch session to check user authentication
@@ -25,16 +26,7 @@ const page = async ({ params }: { params: { id: string } }) => {
       {/* Render Edit/Delete buttons only if the user is authenticated */}
       {session && (
         <Flex direction="column" align="start" gap="3">
-          <Select.Root>
-            <Select.Trigger placeholder="Assign to" />
-            <Select.Content>
-              <Select.Group>
-                <Select.Label>Fruits</Select.Label>
-                <Select.Item value="orange">Orange</Select.Item>
-              </Select.Group>
-            </Select.Content>
-          </Select.Root>
-
+          <AssigneeDropdown />
           <EditButton id={parseInt(params.id)} />
           <DeleteButton id={parseInt(params.id)} />
         </Flex>
